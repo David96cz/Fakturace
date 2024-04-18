@@ -69,7 +69,6 @@
 	  <EmbeddedResource Include="Resources\Fonts\arial.ttf">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </EmbeddedResource>
-	  <EmbeddedResource Include="Resources\Images\adventurwork.png" />
 	  <EmbeddedResource Include="Resources\Images\profilovka.png" />
 	</ItemGroup>
 
