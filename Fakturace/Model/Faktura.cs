@@ -35,6 +35,7 @@ namespace Fakturace.Model
 
         [NotMapped] // Tato vlastnost nebude mapována do databáze
         public string[] ProduktyList { get; set; }
+        string FolderName = "Faktury";
 
 
         RectangleF TotalPriceCellBounds = RectangleF.Empty;
@@ -376,17 +377,24 @@ namespace Fakturace.Model
         // Metoda pro uložení a otevření souboru
         private void SaveFile(string fileName, byte[] data)
         {
-            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName);
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FolderName, fileName);
             File.WriteAllBytes(filePath, data);
         }
 
         public async void OpenFile(string fileName, string contentType)
         {
-            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName);
-            await Launcher.OpenAsync(new OpenFileRequest
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FolderName, fileName);
+            try
             {
-                File = new ReadOnlyFile(filePath, contentType)
-            });
+                await Launcher.OpenAsync(new OpenFileRequest
+                {
+                    File = new ReadOnlyFile(filePath, contentType)
+                });
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                await Application.Current.MainPage.DisplayAlert("Chyba", "Soubor nelze najít. Byl buď přesunut nebo smazán.", "OK");
+            }
         }
 
         public override string ToString() => $"Faktura: {CisloFaktury}";

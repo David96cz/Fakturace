@@ -86,7 +86,7 @@
                     FontAttributes="Bold"
                     BorderWidth="2" 
                     BorderColor="Black"
-                    Margin="0, 20, 100, 0"
+                    Margin="0, 350, 100, 0"
                     Grid.Row="3"
                     Grid.Column="5"
                     Clicked="Button_Smazat_Dodavatele"/>
