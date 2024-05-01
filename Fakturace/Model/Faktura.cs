@@ -35,8 +35,6 @@ namespace Fakturace.Model
 
         [NotMapped] // Tato vlastnost nebude mapována do databáze
         public string[] ProduktyList { get; set; }
-        string FolderName = "Faktury";
-
 
         RectangleF TotalPriceCellBounds = RectangleF.Empty;
         RectangleF QuantityCellBounds = RectangleF.Empty;
@@ -377,13 +375,13 @@ namespace Fakturace.Model
         // Metoda pro uložení a otevření souboru
         private void SaveFile(string fileName, byte[] data)
         {
-            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FolderName, fileName);
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
             File.WriteAllBytes(filePath, data);
         }
 
         public async void OpenFile(string fileName, string contentType)
         {
-            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FolderName, fileName);
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
             try
             {
                 await Launcher.OpenAsync(new OpenFileRequest
