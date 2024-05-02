@@ -7,10 +7,7 @@ namespace Fakturace
     {
         private bool isDarkMode = false;
 
-        ContextPrijatych DbPrijatych;
-        ContextVystavenych DbVystavenych;
-        ContextDodavatelu DbDodavatelu;
-        ContextOdberatelu DbOdberatelu;
+        ContextDatabaze ContextDatabaze;
 
         ListView PrijateList;
         ListView VystaveneList;
@@ -18,10 +15,7 @@ namespace Fakturace
         public MainPage()
         {
             InitializeComponent();
-            DbPrijatych = new ContextPrijatych();
-            DbVystavenych = new ContextVystavenych();
-            DbDodavatelu = new ContextDodavatelu();
-            DbOdberatelu = new ContextOdberatelu();
+            ContextDatabaze = new ContextDatabaze();
             PrijateList = new ListView();
             VystaveneList = new ListView();
 
@@ -32,27 +26,27 @@ namespace Fakturace
 
         private async void Button_Prijate(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new EPFpage(DbDodavatelu, DbPrijatych));
+            await Navigation.PushAsync(new EPFpage(ContextDatabaze));
         }
 
         private async void Button_Vystavene(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new EVFpage(DbOdberatelu, DbVystavenych));
+            await Navigation.PushAsync(new EVFpage(ContextDatabaze));
         }
 
         private async void Button_Dodavatele(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new EDpage(DbDodavatelu, DbPrijatych, PrijateList));
+            await Navigation.PushAsync(new EDpage(ContextDatabaze, PrijateList));
         }
 
         private async void Button_Odberatele(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new EOpage(DbOdberatelu, DbVystavenych, VystaveneList));
+            await Navigation.PushAsync(new EOpage(ContextDatabaze, VystaveneList));
         }
 
         private async void Button_Simulace(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new SIMpage(DbDodavatelu, DbOdberatelu, DbPrijatych, DbVystavenych));
+            await Navigation.PushAsync(new SIMpage(ContextDatabaze));
         }
 
         

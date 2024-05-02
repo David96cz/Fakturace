@@ -5,26 +5,24 @@ namespace Fakturace;
 
 public partial class EDpage : ContentPage
 {
-    ContextDodavatelu DbDodavatelu;
-    ContextPrijatych DbPrijatych;
+    ContextDatabaze ContextDatabaze;
     ListView PrijateList;
     Dodavatel D;
     string[] ProduktyList;
     string Produkty;
 
-    public EDpage(ContextDodavatelu dbDodavatelu, ContextPrijatych dbPrijatych, ListView prijateList)
+    public EDpage(ContextDatabaze contextDatabaze, ListView prijateList)
     {
         InitializeComponent();
-        DbDodavatelu = dbDodavatelu;
-        DbPrijatych = dbPrijatych;
+        ContextDatabaze = contextDatabaze;
         PrijateList = prijateList;
-        dodavateleList.ItemsSource = DbDodavatelu.Dodavatele.ToList();
+        dodavateleList.ItemsSource = ContextDatabaze.Dodavatele.ToList();
         vybranyDodavatel.Text = "Vybraný dodavatel: ---";
     }
 
     private async void Novy_Dodavatel_Clicked(object sender, EventArgs e)
     {
-        await Navigation.PushAsync(new NovyDodavatel(DbDodavatelu, DbPrijatych, dodavateleList, PrijateList));
+        await Navigation.PushAsync(new NovyDodavatel(ContextDatabaze, dodavateleList, PrijateList));
     }
 
     public void Button_Otevrit(object sender, EventArgs e)
@@ -58,21 +56,21 @@ public partial class EDpage : ContentPage
             var result = await DisplayAlert("Pozor", "Opravdu chcete odstranit tohoto dodavatele?", "Ano", "Zrušit");
             if (result)
             {
-                DbDodavatelu.Dodavatele.Remove(D);
-                DbDodavatelu.SaveChanges();
+                ContextDatabaze.Dodavatele.Remove(D);
+                ContextDatabaze.SaveChanges();
                 vybranyDodavatel.Text = "Vybraný dodavatel: ---";
 
                 int id = 1;
-                foreach (Dodavatel o in DbDodavatelu.Dodavatele.ToList())
+                foreach (Dodavatel o in ContextDatabaze.Dodavatele.ToList())
                 {
                     D = o;
                     D.Id2 = id;
-                    DbDodavatelu.SaveChanges();
+                    ContextDatabaze.SaveChanges();
                     id++;
                 }
 
                 dodavateleList.ItemsSource = null;
-                dodavateleList.ItemsSource = DbDodavatelu.Dodavatele.ToList();
+                dodavateleList.ItemsSource = ContextDatabaze.Dodavatele.ToList();
             }
             D = null;
         }
@@ -91,21 +89,21 @@ public partial class EDpage : ContentPage
 
     private async void Button_Smazat_Dodavatele(object sender, EventArgs e)
     {
-        if (DbDodavatelu.Dodavatele.Any())
+        if (ContextDatabaze.Dodavatele.Any())
         {
             var rozhodnuti = await DisplayAlert("Pozor!", "Opravdu chcete smazat všechny dodavatele z databáze?", "Ano", "Zrušit");
 
             if (rozhodnuti)
             {
-                var dodavatele = DbDodavatelu.Dodavatele.ToList();
-                DbDodavatelu.Dodavatele.RemoveRange(dodavatele);
-                DbDodavatelu.SaveChanges();
+                var dodavatele = ContextDatabaze.Dodavatele.ToList();
+                ContextDatabaze.Dodavatele.RemoveRange(dodavatele);
+                ContextDatabaze.SaveChanges();
 
-                var prijate = DbPrijatych.Faktury.ToList();
-                DbPrijatych.Faktury.RemoveRange(prijate);
-                DbPrijatych.SaveChanges();
+                var prijate = ContextDatabaze.PrijateFaktury.ToList();
+                ContextDatabaze.PrijateFaktury.RemoveRange(prijate);
+                ContextDatabaze.SaveChanges();
                 dodavateleList.ItemsSource = null;
-                dodavateleList.ItemsSource = DbDodavatelu.Dodavatele.ToList();
+                dodavateleList.ItemsSource = ContextDatabaze.Dodavatele.ToList();
 
                 await DisplayAlert("Info", "Dodavatelé a pøijaté fakutry od nich byli úspìšnì smazáni.", "OK");
             }

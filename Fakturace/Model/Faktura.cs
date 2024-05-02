@@ -21,7 +21,7 @@ namespace Fakturace.Model
     public class Faktura
     {
         public int Id { get; set; }
-        public int CisloFaktury { get; set; }
+        public string CisloFaktury { get; set; }
         public string Jmeno { get; set; }
         public string Prijmeni { get; set; }
         public string Zeme { get; set; }
@@ -39,9 +39,9 @@ namespace Fakturace.Model
         RectangleF TotalPriceCellBounds = RectangleF.Empty;
         RectangleF QuantityCellBounds = RectangleF.Empty;
         // Vygenerování faktury
-        public Faktura(int cisloFaktury, string jmeno, string prijmeni, string zeme, string mesto, string ulice, string cisloPopisne, string psc, string ico, string produkty, bool odberatel)
+        public Faktura(string jmeno, string prijmeni, string zeme, string mesto, string ulice, string cisloPopisne, string psc, string ico, string produkty, bool odberatel)
         {
-            CisloFaktury = cisloFaktury;
+            CisloFaktury = DateTime.Today.ToString() + Id;/*Dnešní datum + číslo faktury (od 1 podle počtu existujících faktur)*/;
             Jmeno = jmeno;
             Prijmeni = prijmeni;
             Zeme = zeme;
@@ -152,11 +152,11 @@ namespace Fakturace.Model
             #endregion
 
             //Measure the string size using the font. 
-            Syncfusion.Drawing.SizeF size = arialRegularFont.MeasureString($"Číslo faktury: {cisloFaktury}");
+            Syncfusion.Drawing.SizeF size = arialRegularFont.MeasureString($"Číslo faktury: {CisloFaktury}");
             y = headerHeight + margin;
             x = (pageWidth - margin) - size.Width;
             //Draw text to a PDF page with the provided font and location. 
-            graphics.DrawString($"Číslo faktury: {cisloFaktury}", arialRegularFont, PdfBrushes.Black, new Syncfusion.Drawing.PointF(x, y));
+            graphics.DrawString($"Číslo faktury: {CisloFaktury}", arialRegularFont, PdfBrushes.Black, new Syncfusion.Drawing.PointF(x, y));
             //Measure the string size using the font.
             size = arialRegularFont.MeasureString("Datum: " + DateTime.Now.ToString("d, MMMM yyyy"));
             x = (pageWidth - margin) - size.Width;
@@ -309,7 +309,7 @@ namespace Fakturace.Model
             float celkovaCastka = GetTotalAmount(grid);
 
             // Formát pro QR platbu dle evropského standardu SEPA
-            string sepaQRCode = $"SPD*1.0*ACC:{iban}*AM:{celkovaCastka}*CC:CZK*MSG:Platba za fakturu {cisloFaktury}*X-VS:{cisloFaktury}";
+            string sepaQRCode = $"SPD*1.0*ACC:{iban}*AM:{celkovaCastka}*CC:CZK*MSG:Platba za fakturu {CisloFaktury}*X-VS:{CisloFaktury}";
 
             qrBarcode.Text = sepaQRCode;
 
@@ -326,7 +326,7 @@ namespace Fakturace.Model
             document.Save(stream);
 
             // Uložení
-            SaveFile($"Faktura {cisloFaktury}.pdf", stream.ToArray());
+            SaveFile($"Faktura {CisloFaktury}.pdf", stream.ToArray());
         }
 
         #region Helper Methods

@@ -5,15 +5,15 @@ namespace Fakturace;
 
 public partial class EPFpage : ContentPage
 {
-    ContextPrijatych DbPrijatych;
+    ContextDatabaze ContextDatabaze;
     Faktura Faktura;
 
-    public EPFpage(ContextDodavatelu dbDodavatelu, ContextPrijatych dbPrijatych)
+    public EPFpage(ContextDatabaze contextDatabaze)
 	{
 		InitializeComponent();
-        DbPrijatych = dbPrijatych;
+        ContextDatabaze = contextDatabaze;
         prijateList.ItemsSource = null;
-        prijateList.ItemsSource = DbPrijatych.Faktury.ToList();
+        prijateList.ItemsSource = ContextDatabaze.PrijateFaktury.ToList();
     }
 
     private void PrijateList_ItemTapped(object sender, ItemTappedEventArgs e)
@@ -38,10 +38,10 @@ public partial class EPFpage : ContentPage
             var result = await DisplayAlert("Fakt?", "Opravdu chcete odstranit tuhle fakturu?", "Ano", "Zrušit");
             if (result)
             {
-                DbPrijatych.Faktury.Remove(Faktura);
-                DbPrijatych.SaveChanges();
+                ContextDatabaze.PrijateFaktury.Remove(Faktura);
+                ContextDatabaze.SaveChanges();
                 prijateList.ItemsSource = null;
-                prijateList.ItemsSource = DbPrijatych.Faktury.ToList();
+                prijateList.ItemsSource = ContextDatabaze.PrijateFaktury.ToList();
                 vybranaFaktura.Text = "Vybrána faktura è. ---";
             }
             Faktura = null;

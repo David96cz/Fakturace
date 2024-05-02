@@ -5,26 +5,24 @@ namespace Fakturace;
 
 public partial class EOpage : ContentPage
 {
-    ContextOdberatelu DbOdberatelu;
-    ContextVystavenych DbVystavenych;
+    ContextDatabaze ContextDatabaze;
     ListView VystaveneList;
     Odberatel O;
     string[] ProduktyList;
     string Produkty;
 
-    public EOpage(ContextOdberatelu dbOdberatelu, ContextVystavenych dbVystavenych, ListView vystaveneList)
+    public EOpage(ContextDatabaze contextDatabaze, ListView vystaveneList)
 	{
 		InitializeComponent();
-        DbOdberatelu = dbOdberatelu;
-        DbVystavenych = dbVystavenych;
+        ContextDatabaze = contextDatabaze;
         VystaveneList = vystaveneList;
-        odberateleList.ItemsSource = DbOdberatelu.Odberatele.ToList();
+        odberateleList.ItemsSource = ContextDatabaze.Odberatele.ToList();
         vybranyOdberatel.Text = "Vybraný odbìratel: ---";
     }
 
     private async void Novy_Odberatel_Clicked(object sender, EventArgs e)
     {
-        await Navigation.PushAsync(new NovyOdberatel(DbOdberatelu, DbVystavenych, odberateleList, VystaveneList));
+        await Navigation.PushAsync(new NovyOdberatel(ContextDatabaze, odberateleList, VystaveneList));
     }
 
     private void Button_Otevrit(object sender, EventArgs e)
@@ -58,21 +56,21 @@ public partial class EOpage : ContentPage
             var result = await DisplayAlert("Pozor", "Opravdu chcete odstranit tohoto odbìratele?", "Ano", "Zrušit");
             if (result)
             {
-                DbOdberatelu.Odberatele.Remove(O);
-                DbOdberatelu.SaveChanges();
+                ContextDatabaze.Odberatele.Remove(O);
+                ContextDatabaze.SaveChanges();
                 vybranyOdberatel.Text = "Vybraný odbìratel: ---";
 
                 int id = 1;
-                foreach (Odberatel o in DbOdberatelu.Odberatele.ToList())
+                foreach (Odberatel o in ContextDatabaze.Odberatele.ToList())
                 {
                     O = o;
                     O.Id2 = id;
-                    DbOdberatelu.SaveChanges();
+                    ContextDatabaze.SaveChanges();
                     id++;
                 }
 
                 odberateleList.ItemsSource = null;
-                odberateleList.ItemsSource = DbOdberatelu.Odberatele.ToList();
+                odberateleList.ItemsSource = ContextDatabaze.Odberatele.ToList();
             }
             O = null;
         }
@@ -91,21 +89,21 @@ public partial class EOpage : ContentPage
 
     private async void Button_Smazat_Odberatele(object sender, EventArgs e)
     {
-        if (DbOdberatelu.Odberatele.Any())
+        if (ContextDatabaze.Odberatele.Any())
         {
             var rozhodnuti = await DisplayAlert("Pozor!", "Opravdu chcete smazat všechny odbìratele z databáze?", "Ano", "Zrušit");
 
             if (rozhodnuti)
             {
-                var odberatele = DbOdberatelu.Odberatele.ToList();
-                DbOdberatelu.Odberatele.RemoveRange(odberatele);
-                DbOdberatelu.SaveChanges();
+                var odberatele = ContextDatabaze.Odberatele.ToList();
+                ContextDatabaze.Odberatele.RemoveRange(odberatele);
+                ContextDatabaze.SaveChanges();
 
-                var prijate = DbVystavenych.Faktury.ToList();
-                DbVystavenych.Faktury.RemoveRange(prijate);
-                DbVystavenych.SaveChanges();
+                var vystavene = ContextDatabaze.VystaveneFaktury.ToList();
+                ContextDatabaze.VystaveneFaktury.RemoveRange(vystavene);
+                ContextDatabaze.SaveChanges();
                 odberateleList.ItemsSource = null;
-                odberateleList.ItemsSource = DbOdberatelu.Odberatele.ToList();
+                odberateleList.ItemsSource = ContextDatabaze.Odberatele.ToList();
 
                 await DisplayAlert("Info", "Odbìratelé a jim vystavené faktury byli úspìšnì smazáni.", "OK");
             }

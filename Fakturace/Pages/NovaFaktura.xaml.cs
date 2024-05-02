@@ -5,20 +5,18 @@ namespace Fakturace;
 
 public partial class NovaFaktura : ContentPage
 {
-    ContextVystavenych DbVystavenych;
-    ContextOdberatelu DbOdberatelu;
+    ContextDatabaze ContextDatabaze;
     ListView VystaveneList;
     Odberatel O;
     string produkty;
 
-    public NovaFaktura(ContextVystavenych dbVystavenych, ListView vystaveneList, ContextOdberatelu dbOdberatelu)
+    public NovaFaktura(ContextDatabaze contextDatabaze, ListView vystaveneList)
     {
         InitializeComponent();
-        DbVystavenych = dbVystavenych;
+        ContextDatabaze = contextDatabaze;
         VystaveneList = vystaveneList;
-        DbOdberatelu = dbOdberatelu;
-        odberateleList.ItemsSource = DbOdberatelu.Odberatele.ToList();
-        if (!DbOdberatelu.Odberatele.Any())
+        odberateleList.ItemsSource = ContextDatabaze.Odberatele.ToList();
+        if (!ContextDatabaze.Odberatele.Any())
         {
             odberatelPicker.SelectedIndex = 1;
         }
@@ -31,95 +29,72 @@ public partial class NovaFaktura : ContentPage
 
     public async void Button_Generovat(object sender, EventArgs e)
     {
-        string cisloFakturyText = cisloInput.Text;
-        if (int.TryParse(cisloFakturyText, out int cisloFaktury))
-        {
-            string jmeno;
-            string prijmeni;
-            string zeme;
-            string mesto;
-            string ulice;
-            string cisloPopisne;
-            string psc;
-            string ico;
-            bool odberatel = true;
-
-            if (odberatelPicker.SelectedItem.ToString() == "Jiný odbìratel")
-            {
-                if (produkty != null)
-                {
-                    jmeno = jmenoInput.Text;
-                    prijmeni = prijmeniInput.Text;
-                    zeme = zemeInput.Text;
-                    mesto = mestoInput.Text;
-                    ulice = uliceInput.Text;
-                    cisloPopisne = cisloPopisneInput.Text;
-                    psc = pscInput.Text;
-                    ico = icoInput.Text;
-                }
-                else
-                {
-                    await DisplayAlert("Chyba", "Nebyly pøidány žádné produkty", "OK");
-                    return;
-                }
-
-            }
-            else
-            {
-                if (O != null)
-                {
-                    jmeno = O.Jmeno;
-                    prijmeni = O.Prijmeni;
-                    zeme = O.Zeme;
-                    mesto = O.Mesto;
-                    ulice = O.Ulice;
-                    cisloPopisne = O.CisloPopisne;
-                    psc = O.Psc;
-                    if (!string.IsNullOrEmpty(produkty)) // Poøešení, aby se poslední èlen pøedposledního záznamu a první èlen posledního záznamu nespojily do jednoho...
-                    {
-                        produkty += "§";
-                    }
-                    produkty += O.Produkty;
-                    ico = O.Ico;
-
-                }
-                else
-                {
-                    await DisplayAlert("Chyba", "Kliknutím vyberte ze seznamu existujícího odbìratele.", "OK");
-                    return;
-                }
-                
-            }
-            
-
-            if (!DbVystavenych.Faktury.Any(f => f.CisloFaktury == cisloFaktury))
-            {
-                DbVystavenych.Faktury.Add(new Model.Faktura(cisloFaktury, jmeno, prijmeni, zeme, mesto, ulice, cisloPopisne, psc, ico, produkty, odberatel) { CisloFaktury = cisloFaktury, Jmeno = jmeno, Prijmeni = prijmeni, Zeme = zeme, Mesto = mesto, Ulice = ulice, CisloPopisne = cisloPopisne, Psc = psc, Ico = ico, Produkty = produkty,Odberatel = odberatel });
-                DbVystavenych.SaveChanges();
-                VystaveneList.ItemsSource = null;
-                VystaveneList.ItemsSource = DbVystavenych.Faktury.ToList();
-                //Vygenerovano();
-                await DisplayAlert("Info", "Faktura byla úspìšnì vygenerována.", "OK");
-                await Navigation.PopAsync();
-            }
-            else
-            {
-                await DisplayAlert("Chyba", "Zadali jste duplicitní èíslo faktury.", "OK");
-            }
-            
-        }
-        else
-        {
-            await DisplayAlert("Chyba", "Zadejte platné èíslo faktury.", "OK");
-        }
+         string jmeno;
+         string prijmeni;
+         string zeme;
+         string mesto;
+         string ulice;
+         string cisloPopisne;
+         string psc;
+         string ico;
+         bool odberatel = true;
+         
+         if (odberatelPicker.SelectedItem.ToString() == "Jiný odbìratel")
+         {
+             if (produkty != null)
+             {
+                 jmeno = jmenoInput.Text;
+                 prijmeni = prijmeniInput.Text;
+                 zeme = zemeInput.Text;
+                 mesto = mestoInput.Text;
+                 ulice = uliceInput.Text;
+                 cisloPopisne = cisloPopisneInput.Text;
+                 psc = pscInput.Text;
+                 ico = icoInput.Text;
+             }
+             else
+             {
+                 await DisplayAlert("Chyba", "Nebyly pøidány žádné produkty", "OK");
+                 return;
+             }
+         
+         }
+         else
+         {
+             if (O != null)
+             {
+                 jmeno = O.Jmeno;
+                 prijmeni = O.Prijmeni;
+                 zeme = O.Zeme;
+                 mesto = O.Mesto;
+                 ulice = O.Ulice;
+                 cisloPopisne = O.CisloPopisne;
+                 psc = O.Psc;
+                 if (!string.IsNullOrEmpty(produkty)) // Poøešení, aby se poslední èlen pøedposledního záznamu a první èlen posledního záznamu nespojily do jednoho...
+                 {
+                     produkty += "§";
+                 }
+                 produkty += O.Produkty;
+                 ico = O.Ico;
+         
+             }
+             else
+             {
+                 await DisplayAlert("Chyba", "Kliknutím vyberte ze seznamu existujícího odbìratele.", "OK");
+                 return;
+             }
+             
+         }
+         
+         ContextDatabaze.VystaveneFaktury.Add(new Model.Faktura(jmeno, prijmeni, zeme, mesto, ulice, cisloPopisne, psc, ico, produkty, odberatel) {Jmeno = jmeno, Prijmeni = prijmeni, Zeme = zeme, Mesto = mesto, Ulice = ulice, CisloPopisne = cisloPopisne, Psc = psc, Ico = ico, Produkty = produkty,Odberatel = odberatel });
+         ContextDatabaze.SaveChanges();
+         VystaveneList.ItemsSource = null;
+         VystaveneList.ItemsSource = ContextDatabaze.VystaveneFaktury.ToList();
+         //Vygenerovano();
+         await DisplayAlert("Info", "Faktura byla úspìšnì vygenerována.", "OK");
+         await Navigation.PopAsync();
+         
     }
-
-    //private async void Vygenerovano()
-    //{
-    //    vygenerovano.IsVisible = true;
-    //    await Task.Delay(2000);
-    //    vygenerovano.IsVisible = false;
-    //}
 
     public async void Button_Pridat(object sender, EventArgs e)
     {
@@ -183,7 +158,7 @@ public partial class NovaFaktura : ContentPage
 
     private async void VolbaOdberatele()
     {
-        if (DbOdberatelu.Odberatele.Any())
+        if (ContextDatabaze.Odberatele.Any())
         {
             if (odberatelPicker.SelectedItem.ToString() == "Existující odbìratel")
             {

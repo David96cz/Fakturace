@@ -5,21 +5,19 @@ namespace Fakturace;
 
 public partial class EVFpage : ContentPage
 {
-    ContextVystavenych DbVystavenych;
-    ContextOdberatelu DbOdberatelu;
+    ContextDatabaze ContextDatabaze;
     Faktura F;
 
-    public EVFpage(ContextOdberatelu dbOdberatelu, ContextVystavenych dbVystavenych)
+    public EVFpage(ContextDatabaze contextDatabaze)
 	{
         InitializeComponent();
-        DbVystavenych = dbVystavenych;
-        DbOdberatelu = dbOdberatelu;
-        vystaveneList.ItemsSource = DbVystavenych.Faktury.ToList();
+        ContextDatabaze = contextDatabaze;
+        vystaveneList.ItemsSource = ContextDatabaze.VystaveneFaktury.ToList();
     }
 
     public async void Button_Nova_Faktura(object sender, EventArgs e)
     {
-        await Navigation.PushAsync(new NovaFaktura(DbVystavenych, vystaveneList, DbOdberatelu));
+        await Navigation.PushAsync(new NovaFaktura(ContextDatabaze, vystaveneList));
     }
 
     public void VystaveneList_ItemTapped(object sender, ItemTappedEventArgs e)
@@ -46,10 +44,10 @@ public partial class EVFpage : ContentPage
             var result = await DisplayAlert("Pozor", "Opravdu chcete odstranit tuhle fakturu?", "Ano", "Zrušit");
             if (result)
             {
-                DbVystavenych.Faktury.Remove(F);
-                DbVystavenych.SaveChanges();
+                ContextDatabaze.VystaveneFaktury.Remove(F);
+                ContextDatabaze.SaveChanges();
                 vystaveneList.ItemsSource = null;
-                vystaveneList.ItemsSource = DbVystavenych.Faktury.ToList();
+                vystaveneList.ItemsSource = ContextDatabaze.VystaveneFaktury.ToList();
                 vybranaFaktura.Text = "Vybrána faktura è. ---";
             }
             F = null;

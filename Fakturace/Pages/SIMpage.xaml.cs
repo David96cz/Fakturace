@@ -7,10 +7,7 @@ public partial class SIMpage : ContentPage
 {
     Random Nahoda;
 
-    ContextPrijatych DbPrijatych;
-    ContextVystavenych DbVystavenych;
-    ContextDodavatelu DbDodavatelu;
-    ContextOdberatelu DbOdberatelu;
+    ContextDatabaze ContextDatabaze;
 
     string[] Jmena = { "Jan", "Petr", "Marie", "Jana", "Josef", "Eva", "Hana", "Tereza", "Miroslav", "Veronika", "Martin", "Lenka", "Jakub", "Lucie", "David", "Anna", "Pavel", "Kate¯ina", "Tom·ö", "Petra", "Michal", "Elena", "Filip", "MarkÈta", "Luk·ö", "Zuzana", "Adam", "Barbora", "Robert", "Eliöka" };
     string[] Prijmeni = { "Nov·k", "Svoboda", "Novotn˝", "Dvo¯·k", "»ern˝", "Proch·zka", "KuËera", "Vesel˝", "Hor·k", "NÏmec", "Marek", "PospÌöil", "H·jek", "Janda", "Kr·l", "VlËek", "Urban", "Richter", "H·jkov·", "Zeman", "KratochvÌl", "äùastn˝", "S˝kora", "Nov·kov·", "Hodn˝", "Ondr·Ëek", "Mach", "Beneö", "Pokorn˝", "Vesel·" };
@@ -50,18 +47,16 @@ public partial class SIMpage : ContentPage
     int Rozsah = 30;
     int RozsahProduktu = 100;
 
-    public SIMpage(ContextDodavatelu dbDodavatelu, ContextOdberatelu dbOdberatelu, ContextPrijatych dbPrijatych, ContextVystavenych dbVystavenych)
+    public SIMpage(ContextDatabaze contextDatabaze)
 	{
 		InitializeComponent();
-        DbPrijatych = dbPrijatych;
-        DbVystavenych = dbVystavenych;
-        DbDodavatelu = dbDodavatelu;
-        DbOdberatelu = dbOdberatelu;
-	}
+        ContextDatabaze = contextDatabaze;
+
+    }
 
     private void Button_Generovat_Dodavatele(object sender, EventArgs e)
     {
-        if (!DbDodavatelu.Dodavatele.Any())
+        if (!ContextDatabaze.Dodavatele.Any())
         {
             Nahoda = new Random();
             int id2 = 1;
@@ -77,17 +72,16 @@ public partial class SIMpage : ContentPage
                     }
                     produkty += Produkty[Nahoda.Next(0, RozsahProduktu)];
                 }
-                DbDodavatelu.Dodavatele.Add(new Model.Dodavatel(id2, jmeno, prijmeni, zeme, mesto, ulice, cisloPopisne, psc, ico, produkty) { Jmeno = jmeno, Prijmeni = prijmeni, Zeme = zeme, Mesto = mesto, Ulice = ulice, CisloPopisne = cisloPopisne, Psc = psc, Ico = ico, Produkty = produkty });
-                DbDodavatelu.SaveChanges();
+                ContextDatabaze.Dodavatele.Add(new Model.Dodavatel(id2, jmeno, prijmeni, zeme, mesto, ulice, cisloPopisne, psc, ico, produkty) { Jmeno = jmeno, Prijmeni = prijmeni, Zeme = zeme, Mesto = mesto, Ulice = ulice, CisloPopisne = cisloPopisne, Psc = psc, Ico = ico, Produkty = produkty });
+                ContextDatabaze.SaveChanges();
                 id2++;
             }
 
-            foreach (Dodavatel d in DbDodavatelu.Dodavatele.ToList())
+            foreach (Dodavatel d in ContextDatabaze.Dodavatele.ToList())
             {
                 bool odberatel = false;
-                int cisloFaktury = Nahoda.Next(12451, 25357);
-                DbPrijatych.Faktury.Add(new Model.Faktura(cisloFaktury, d.Jmeno, d.Prijmeni, d.Zeme, d.Mesto, d.Ulice, d.CisloPopisne, d.Psc, d.Ico, d.Produkty, odberatel) { CisloFaktury = cisloFaktury, Jmeno = d.Jmeno, Prijmeni = d.Prijmeni, Zeme = d.Zeme, Mesto = d.Mesto, Ulice = d.Ulice, CisloPopisne = d.CisloPopisne, Psc = d.Psc, Ico = d.Ico, Produkty = d.Produkty, Odberatel = odberatel });
-                DbPrijatych.SaveChanges();
+                ContextDatabaze.PrijateFaktury.Add(new Model.Faktura(d.Jmeno, d.Prijmeni, d.Zeme, d.Mesto, d.Ulice, d.CisloPopisne, d.Psc, d.Ico, d.Produkty, odberatel) { Jmeno = d.Jmeno, Prijmeni = d.Prijmeni, Zeme = d.Zeme, Mesto = d.Mesto, Ulice = d.Ulice, CisloPopisne = d.CisloPopisne, Psc = d.Psc, Ico = d.Ico, Produkty = d.Produkty, Odberatel = odberatel });
+                ContextDatabaze.SaveChanges();
             }
 
             if (dodavateleStepper.Value == 1)
@@ -112,7 +106,7 @@ public partial class SIMpage : ContentPage
 
     private void Button_Generovat_Odberatele(object sender, EventArgs e)
     {
-        if (!DbOdberatelu.Odberatele.Any())
+        if (!ContextDatabaze.Odberatele.Any())
         {
             Nahoda = new Random();
             int id2 = 1;
@@ -128,8 +122,8 @@ public partial class SIMpage : ContentPage
                     }
                     produkty += Produkty[Nahoda.Next(0, RozsahProduktu)];
                 }
-                DbOdberatelu.Odberatele.Add(new Model.Odberatel(id2, jmeno, prijmeni, zeme, mesto, ulice, cisloPopisne, psc, ico, produkty) { Jmeno = jmeno, Prijmeni = prijmeni, Zeme = zeme, Mesto = mesto, Ulice = ulice, CisloPopisne = cisloPopisne, Psc = psc, Ico = ico, Produkty = produkty });
-                DbOdberatelu.SaveChanges();
+                ContextDatabaze.Odberatele.Add(new Model.Odberatel(id2, jmeno, prijmeni, zeme, mesto, ulice, cisloPopisne, psc, ico, produkty) { Jmeno = jmeno, Prijmeni = prijmeni, Zeme = zeme, Mesto = mesto, Ulice = ulice, CisloPopisne = cisloPopisne, Psc = psc, Ico = ico, Produkty = produkty });
+                ContextDatabaze.SaveChanges();
                 id2++;
             }
             if (odberateleStepper.Value == 1)
@@ -157,21 +151,21 @@ public partial class SIMpage : ContentPage
 
         if (rozhodnuti)
         {
-            var dodavatele = DbDodavatelu.Dodavatele.ToList();
-            DbDodavatelu.Dodavatele.RemoveRange(dodavatele);
-            DbDodavatelu.SaveChanges();
+            var dodavatele = ContextDatabaze.Dodavatele.ToList();
+            ContextDatabaze.Dodavatele.RemoveRange(dodavatele);
+            ContextDatabaze.SaveChanges();
 
-            var prijate = DbPrijatych.Faktury.ToList();
-            DbPrijatych.Faktury.RemoveRange(prijate);
-            DbPrijatych.SaveChanges();
+            var prijate = ContextDatabaze.PrijateFaktury.ToList();
+            ContextDatabaze.PrijateFaktury.RemoveRange(prijate);
+            ContextDatabaze.SaveChanges();
 
-            var odberatele = DbOdberatelu.Odberatele.ToList();
-            DbOdberatelu.Odberatele.RemoveRange(odberatele);
-            DbOdberatelu.SaveChanges();
+            var odberatele = ContextDatabaze.Odberatele.ToList();
+            ContextDatabaze.Odberatele.RemoveRange(odberatele);
+            ContextDatabaze.SaveChanges();
 
-            var vystavene = DbVystavenych.Faktury.ToList();
-            DbVystavenych.Faktury.RemoveRange(vystavene);
-            DbVystavenych.SaveChanges();
+            var vystavene = ContextDatabaze.VystaveneFaktury.ToList();
+            ContextDatabaze.VystaveneFaktury.RemoveRange(vystavene);
+            ContextDatabaze.SaveChanges();
 
             await DisplayAlert("Info", "Datab·ze byla resetov·na.", "OK");
         }  

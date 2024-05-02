@@ -1,35 +1,28 @@
 using Fakturace.Data;
 using Fakturace.Model;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Fakturace;
-	
-public partial class NovyDodavatel : ContentPage
+
+public partial class NovyOdberatel : ContentPage
 {
-    ContextDodavatelu DbDodavatelu;
-    ContextPrijatych DbPrijatych;
-    Dodavatel D;
-    ListView DodavateleList;
-    ListView PrijateList;
-    Random Nahoda;
+    ContextDatabaze ContextDatabaze;
+    Odberatel O;
+    ListView OdberateleList;
     int id2;
     string produkty;
 
-    public NovyDodavatel(ContextDodavatelu dbDodavatelu, ContextPrijatych dbPrijatych, ListView dodavateleList, ListView prijateList)
-	{
-		InitializeComponent();
-        DbDodavatelu = dbDodavatelu;
-        DbPrijatych = dbPrijatych;
-        DodavateleList = dodavateleList;
-        PrijateList = prijateList;
-        Nahoda = new Random();
-	}
+    public NovyOdberatel(ContextDatabaze contextDatabaze, ListView odberateleList, ListView vystaveneList)
+    {
+        InitializeComponent();
+        ContextDatabaze = contextDatabaze;
+        OdberateleList = odberateleList;
+    }
 
     private void Button_Generovat(object sender, EventArgs e)
     {
         if ((jmenoInput.Text == null) || (prijmeniInput.Text == null) || (zemeInput.Text == null) || (mestoInput.Text == null) || (uliceInput.Text == null) || (cisloPopisneInput.Text == null) || (pscInput.Text == null) || (icoInput.Text == null))
         {
-            DisplayAlert("Chyba", "Vyplòte všechny požadované údaje pro pøidání dodavatele.", "OK");
+            DisplayAlert("Chyba", "Vyplòte všechny požadované údaje pro pøidání odbìratele.", "OK");
         }
         else if (produkty != null)
         {
@@ -42,43 +35,31 @@ public partial class NovyDodavatel : ContentPage
             string psc = pscInput.Text;
             string ico = icoInput.Text;
 
-            foreach (Dodavatel d in DbDodavatelu.Dodavatele.ToList())
+            foreach (Odberatel o in ContextDatabaze.Odberatele.ToList())
             {
-                D = d;
+                O = o;
             }
 
-            if (D != null)
+            if (O != null)
             {
-                id2 = D.Id2 + 1;
+                id2 = O.Id2 + 1;
             }
             else
             {
                 id2 = 1;
             }
-            
-            DbDodavatelu.Dodavatele.Add(new Model.Dodavatel(id2, jmeno, prijmeni, zeme, mesto, ulice, cisloPopisne, psc, ico, produkty) { Jmeno = jmeno, Prijmeni = prijmeni, Zeme = zeme, Mesto = mesto, Ulice = ulice, CisloPopisne = cisloPopisne, Psc = psc, Ico = ico, Produkty = produkty });
-            DbDodavatelu.SaveChanges();
 
-            DodavateleList.ItemsSource = null;
-            DodavateleList.ItemsSource = DbDodavatelu.Dodavatele.ToList();
+            ContextDatabaze.Odberatele.Add(new Model.Odberatel(id2, jmeno, prijmeni, zeme, mesto, ulice, cisloPopisne, psc, ico, produkty) { Jmeno = jmeno, Prijmeni = prijmeni, Zeme = zeme, Mesto = mesto, Ulice = ulice, CisloPopisne = cisloPopisne, Psc = psc, Ico = ico, Produkty = produkty });
+            ContextDatabaze.SaveChanges();
 
-            foreach (Dodavatel d in DbDodavatelu.Dodavatele.ToList())
-            {
-                D = d;
-            }
+            OdberateleList.ItemsSource = null;
+            OdberateleList.ItemsSource = ContextDatabaze.Odberatele.ToList();
 
-            int cisloFaktury = Nahoda.Next(12451, 25357);
-            bool odberatel = false;
-            DbPrijatych.Faktury.Add(new Model.Faktura(cisloFaktury, D.Jmeno, D.Prijmeni, D.Zeme, D.Mesto, D.Ulice, D.CisloPopisne, D.Psc, D.Ico, D.Produkty, odberatel) { CisloFaktury = cisloFaktury, Jmeno = D.Jmeno, Prijmeni = D.Prijmeni, Zeme = D.Zeme, Mesto = D.Mesto, Ulice = D.Ulice, CisloPopisne = D.CisloPopisne, Psc = D.Psc, Ico = D.Ico, Produkty = D.Produkty, Odberatel = odberatel });
-            DbPrijatych.SaveChanges();
-            PrijateList.ItemsSource = null;
-            PrijateList.ItemsSource = DbPrijatych.Faktury.ToList();
-
-            DisplayAlert("Info", "Dodavatel byl úspìšnì pøidán.", "OK");
+            DisplayAlert("Info", "Odbìratel byl úspìšnì pøidán.", "OK");
         }
         else
         {
-            DisplayAlert("Chyba", "Zadejte nìjaké produkty, které budete od dodavatele odebírat.", "OK");
+            DisplayAlert("Chyba", "Zadejte nìjaké produkty, které od vás bude odbìratel odebírat.", "OK");
         }
     }
 
@@ -112,7 +93,6 @@ public partial class NovyDodavatel : ContentPage
                 await DisplayAlert("Chyba", "Zadejte platnou celoèíselnou hodnotu pro poèet kusù.", "OK");
                 return;
             }
-
             int cenaZaKusy = cena * pocetKs;
 
             idInput.Text = nazevProduktuInput.Text = cenaInput.Text = pocetKsInput.Text = "";
